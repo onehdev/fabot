@@ -1,2 +1,2 @@
-# fabot
-Forever Alone Bot
+# ForaBot
+The Forever Alone JS ChatBot
