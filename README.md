@@ -1,0 +1,2 @@
+# fabot
+Forever Alone Bot
