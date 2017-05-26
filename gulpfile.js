@@ -19,8 +19,20 @@ gulp.task('scripts', () =>
     .pipe(gulp.dest(`${path.dist.js}`))
 );
 
+/****** DEMO ******/
+gulp.task('demo', () =>
+  gulp.src([
+    `${path.app.js}**/*.js`
+  ])
+    .pipe($.sourcemaps.init())
+    .pipe($.concat('forabot.js'))
+//    .pipe($.uglify())
+    .pipe($.sourcemaps.write('./'))
+    .pipe(gulp.dest(`${path.demo.js}`))
+);
+
 /****** BUILD ******/
-gulp.task('build', ['scripts']);
+gulp.task('build', ['scripts', 'demo']);
 
 /****** DEFAULT ******/
 gulp.task('default', ['build']);

@@ -1,0 +1,94 @@
+<message-list>
+
+  <!--                  -->
+  <!--   Message List   -->
+  <!--                  -->
+
+  <ul class='message-list' id='message-list'>
+    <li class='{ message: true, groupped: sameAuthor() }' id='{ id }' each={ message, index in opts.messages }>
+      <!-- Avatar -->
+      <div if='{ !message.author }' class='{ avatar: true, float-right: message.author, float-left: !message.author }'>
+        <img src='img/foreveralone.png' width='40' height='40'/>
+      </div>
+
+      <span title='{ message.author }' class='{ message-container: true, float-right: message.author, float-left: !message.author }'>
+
+        <!-- Text message -->
+        <p if='{ message.text }' >{ message.text }</p>
+
+        <!-- Images -->
+        <div class='message-image-container'>
+          <img class='message-image' src='{ image }' width='64' height='64' each={ image, i in message.images }>
+        </div>
+
+        <!-- Link -->
+        <div class='message-link-container' if={ message.link }>
+          👉 <a href='{ message.link.href }' title='{ message.link.title }' target='_blank'>
+            { message.link.text }
+          </a>
+        </div>
+
+        <!-- Download -->
+        <div class='message-download-container' if={ message.download }>
+          <a class='btn btn-danger download-button' href='{ message.download }' target='_blank'>
+            <i class="fa fa-download"> </i>
+            <span>{ getFileName(message.download) }</span>
+          </a>
+        </div>
+
+        <!-- Code -->
+        <div class='message-code-container' if={ message.code }>
+          <pre>{ message.code }</pre>
+        </div>
+
+        <!-- Buttons -->
+        <div class='message-button-container'>
+          <button type='button' onclick='{ buttonClick }' data-index='{ index }' class='btn btn-default message-button' each={ message.buttons }>{ text }</button>
+        </div>
+
+        <!-- Timestamp -->
+        <!-- <i class='timestamp'>GMT { timestamp }</i> -->
+
+      </span>
+    </li>
+  </ul>
+
+  <script>
+
+    this.messages = opts.messages;
+
+    buttonClick(e) {
+      var timestamp = Date.now();
+      // New text message
+      this.messages.push({
+        id: timestamp,
+        author: "Yo",
+        text: e.target.innerText,
+        timestamp: timestamp,
+        type: "put"
+      });
+      window.jsbot.send( e.target.innerText )
+      this.messages.splice( e.target.getAttribute('data-index'), 1 );
+      riot.update();
+    }
+
+    this.getFileName = function(url) {
+      var urlSpl = url.split('/');
+      return urlSpl[ urlSpl.length - 1 ]
+    };
+
+    this.sameAuthor = function() {
+      var nextMessage = this.messages[this.index+1] ;
+      return (nextMessage && nextMessage.author == this.author)
+    };
+
+    this.on('mount', function() { } );
+
+    this.on('updated', function() {
+      console.log(this.refs);
+      // $('message-list').scrollTop( $('#message-list').outerHeight() + 50 );
+    });
+
+  </script>
+
+</message-list>

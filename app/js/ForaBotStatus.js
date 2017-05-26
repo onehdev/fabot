@@ -1,5 +1,5 @@
 /**
- * ForaBotJs - Represents a bot status
+ * ForaBotJs - Represents a chatbot status
  *
  * @constructor
  * @param {String} id - Status ID
@@ -33,6 +33,10 @@ function ForaBotStatus( id, data ) {
   }
 }
 
+/**
+ * Calculates the read time of a message
+ * @return {Number} Time in ms
+ */
 ForaBotStatus.prototype.getReadTime = function getReadTime( ) {
   var __time = localStorage.getItem('ForaBotStatus-' + this.id) || '0';
   __time = parseFloat( __time );

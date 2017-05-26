@@ -1,0 +1,377 @@
+
+/*                         */
+/*                         */
+/*     GENERAL STYLES      */
+/*   __________________    */
+/*                         */
+
+html, body {
+  position: fixed;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  overflow: hidden;
+  background: rgb(230, 96, 0);
+  background: -moz-linear-gradient(top, rgba(230, 96, 0, 0.5) 0%, rgba(187, 34, 0, 0.5) 100%);
+  background: -webkit-gradient(linear, left top, left top, color-stop(0%,rgba(230, 96, 0, 0.5)), color-stop(100%,rgba(187, 34, 0, 0.5)));
+  background: -webkit-linear-gradient(top, rgba(230, 96, 0, 0.5) 0%,rgba(187, 34, 0, 0.5) 100%);
+  background: -o-linear-gradient(top, rgba(230, 96, 0, 0.5) 0%,rgba(187, 34, 0, 0.5) 100%);
+  background: -ms-linear-gradient(top, rgba(230, 96, 0, 0.5) 0%,rgba(187, 34, 0, 0.5) 100%);
+  background: linear-gradient(to top, rgba(230, 96, 0, 0.5) 0%,rgba(187, 34, 0, 0.5) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#E66000', endColorstr='#BB2200',GradientType=0 );
+  background: linear-gradient(to top, rgba(230, 96, 0, 0.5) 0%, rgba(187, 34, 0, 0.5) 100% );
+}
+
+body {
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+     -moz-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+* {
+  font-family: 'Fira Sans', Arial, serif;
+}
+
+label, p {
+  padding: 0;
+  margin: 0;
+}
+
+input {
+  display: inline !important;
+  border-radius: 4px;
+  height: 2.5rem;
+}
+
+hr {
+  margin: 0;
+  width: 90%;
+}
+
+nav {
+  min-height: 55px;
+  color: white;
+}
+
+message-list {
+  padding: 20px 15vw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+@media only screen and (min-device-width: 320px) and (max-device-width: 568px) {
+  message-list {
+    padding: 20px 25px;
+  }
+}
+
+ul.message-list {
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  width: 100%;
+}
+
+.avatar {
+  clear: both;
+  width: 42px;
+  height: 42px;
+  margin: 4px 10px;
+  overflow: hidden;
+  /*background-image: url(/img/dumpzilla-small.png);*/
+  /*background-position: center;
+  background-size: cover;*/
+  -webkit-border-radius: 100%;
+     -moz-border-radius: 100%;
+      -ms-border-radius: 100%;
+          border-radius: 100%;
+}
+.avatar img {
+  width: 40px;
+  height: 40px;
+}
+.avatar.float-left {
+	background-color: #373a3c;
+	border: 2px solid #373a3c;
+}
+
+
+
+.logo {
+  color: white;
+}
+
+/*                         */
+/*                         */
+/*      MESSAGE LIST       */
+/*   __________________    */
+/*                         */
+
+.message {
+  list-style: none;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.message.groupped .avatar {
+  opacity: 0;
+}
+
+/*
+ * Each message
+ */
+.message-container {
+	position: relative;
+  max-width: 75%;
+  border-radius: 4px;
+  padding: 5px 8px;
+  margin: 5px 0.3vw;
+  overflow: hidden;
+  font-weight: 200;
+}
+
+/*
+ * General arrow styles
+ */
+.message-container:after, .message-container:before {
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.message-container:after {
+	border-width: 6px;
+	margin-top: -6px;
+}
+.message-container:before {
+	border-width: 7px;
+	margin-top: -7px;
+}
+
+/*
+ * Left-Arrow styles for received messages (blue)
+ */
+.float-left {
+  float: left;
+}
+.message-container.float-left {
+	background-color: #373a3c;
+	border: 2px solid #373a3c;
+  color: #eceeef;
+}
+.message-container.float-left:after, .message-container.float-left:before {
+	right: 100%;
+	top: 15px;
+}
+.message-container.float-left:after  {
+	border-color: #373a3c;
+	border-color: rgba(0, 0, 0, 0);
+	border-right-color: #373a3c;
+}
+.message-container.float-left:before  {
+  border-color: #373a3c;
+  border-color: rgba(0, 0, 0, 0);
+	border-right-color: #373a3c;
+}
+
+/*
+ * Right-Arrow styles for user messages (green)
+ */
+ .float-right {
+   float: right;
+ }
+.message-container.float-right {
+	background-color: #FFCB00;
+	border: 2px solid #FFCB00;
+  clear: both;
+}
+.message-container.float-right:after, .message-container.float-right:before {
+	left: 100%;
+	top: 50%;
+}
+.message-container.float-right:after  {
+  border-color: #FFCB00;
+	border-color: rgba(153, 213, 167, 0);
+	border-left-color: #FFCB00;
+}
+.message-container.float-right:before  {
+  border-color: #FFCB00;
+  border-color: rgba(199, 245, 196, 0);
+	border-left-color: #FFCB00;
+}
+
+/*                         */
+/*                         */
+/*   MESSAGE COMPONENTS    */
+/*   __________________    */
+/*                         */
+
+/* Tiny timestamp text attached into message */
+.timestamp {
+  clear: both;
+  display: block;
+  text-align: right;
+  margin: 0;
+  padding: 0;
+  font-size: 0.7rem;
+  color: #676767;
+}
+
+/* Author text attached into message */
+.author {
+  clear: both;
+  display: block;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: #676767;
+  font-weight: bold;
+}
+
+.message-button-container, .message-download-container {
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+     -moz-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.message-link-container {
+  margin: 5px 0 3px;
+}
+
+.message-link-container a {
+  color: #FFCB00;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.message-button {
+  display: inline-block;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  background: #00539F;
+  color: #eceeef;
+  cursor: pointer;
+}
+
+.download-button {
+  display: inline-block;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  color: white !important;
+}
+
+.download-button span{
+  display: block;
+  font-size: 10px;
+  font-weight: 200;
+  margin-top: 5px;
+}
+
+.message-code-container pre {
+  color: white;
+  font-size: 12px;
+}
+
+.message-button, .download-button {
+  margin: 2px;
+}
+
+.message-button:hover {
+  background: #0095DD;
+}
+
+.message-image-container {
+  text-align: center;
+}
+.message-image{
+  margin: 10px;
+}
+
+/*                         */
+/*                         */
+/*    NAVBAR COMPONENTS    */
+/*   __________________    */
+/*                         */
+
+/* Action buttons */
+.send-btn {
+  height: 2.5rem;
+  margin-left: 10px;
+}
+
+/* Message input type text */
+#message-input{
+  max-width: 70%;
+  height: 2.5rem;
+}
+
+nav {
+  background-color: #373a3c !important;
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+     -moz-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.nav-link {
+  color: rgba(255,255,255,.5) !important;
+}
+.nav-item.active .nav-link {
+  color: #eceeef !important;
+}
+
+#navbarNav {
+  width: auto !important;
+}
+
+.navbar-brand {
+  color: #eceeef !important;
+  font-weight: 700;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+chat-box .navbar {
+  padding: 10px;
+}
+
+/* Fix bottom navbar padding to ensure all sub-elements fit */
+.navbar-fixed-bottom {
+  padding: 0.3rem 0;
+}
+
+#f_send_message {
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+     -moz-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}

@@ -25,6 +25,10 @@
     "dist": {
       "base": "./build/",
       "js": "./build/js/"
+    },
+    "demo": {
+      "base": "./demo/",
+      "js": "./demo/js/"
     }
   }
 }

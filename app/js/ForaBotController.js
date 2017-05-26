@@ -2,7 +2,7 @@
  * ForaBotJs - Main controller
  *
  * @constructor
- * @param {Function} externalReceiver - Function that will be called when a bot sends a message
+ * @param {Function} externalReceiver - Function that will be called when ForaBot sends a message
  */
 function ForaBotController( externalReceiver, endCallback ) {
   this.botStatus = 0;
@@ -15,6 +15,10 @@ function ForaBotController( externalReceiver, endCallback ) {
   this.endCallback = ( typeof(endCallback) == 'function' ) ? endCallback : null ;
 }
 
+/**
+ * Loads given bot
+ * @param  {ForaBot} bot
+ */
 ForaBotController.prototype.load = function load( bot ) {
   if (bot instanceof ForaBot) {
     this.currentBot = bot;
@@ -23,6 +27,9 @@ ForaBotController.prototype.load = function load( bot ) {
   }
 };
 
+/**
+ * Starts the chatbot
+ */
 ForaBotController.prototype.start = function start() {
   if (this.botStatus === 0) { // Off
     this.currentStatus = 'init';
@@ -36,6 +43,12 @@ ForaBotController.prototype.start = function start() {
   }
 };
 
+/**
+ * Extends the defaults object with the properties of the overwrites object
+ * @param {Object} defaults JS object with default values
+ * @param {Object} overwrites JS object with new values
+ * @return {Object} Returns de "defaults" object with the new properties
+ */
 ForaBotController.prototype.extend = function extend(defaults, overwrites){
   for(var __key in overwrites) {
     if( overwrites.hasOwnProperty(__key) ) {
@@ -45,6 +58,9 @@ ForaBotController.prototype.extend = function extend(defaults, overwrites){
   return defaults;
 }
 
+/**
+ * Checks the current bot status
+ */
 ForaBotController.prototype.checkCurrent = function checkCurrent() {
   if (this.currentStatus === false ) {
     if ( this.endCallback ) this.endCallback();
@@ -63,6 +79,9 @@ ForaBotController.prototype.checkCurrent = function checkCurrent() {
   }
 };
 
+/**
+ * Stops the chatbot
+ */
 ForaBotController.prototype.stop = function stop() {
   console.log('Stop')
   if (this.timeout) clearTimeout( this.timeout );
@@ -88,6 +107,11 @@ ForaBotController.prototype.stop = function stop() {
 //   return false;
 // }
 
+/**
+ * Sends a response to the chatbot
+ * @param {String} value
+ * @return {Boolean} True if processed
+ */
 ForaBotController.prototype.send = function send( value ) {
   if (this.botStatus == 2) { // Waiting
     this.timeoutOverwrite = 10;
@@ -109,6 +133,10 @@ ForaBotController.prototype.send = function send( value ) {
   }
 };
 
+/**
+ * Goes to the next chatbot status
+ * @param {String} value (optional) the next status
+ */
 ForaBotController.prototype.next = function next( value ) {
   if (this.chatBox) this.chatBox[0].unmount(true);
   if ( typeof(value) != 'undefined' ) {

@@ -1,0 +1,72 @@
+<chat-box>
+  <!--            -->
+  <!--  Actions   -->
+  <!--            -->
+  <nav class="navbar navbar-dark bg-faded navbar-dark">
+
+    <!-- Actions for message list -->
+    <div >
+      <form id="f_send_message" onsubmit='{ send }'>
+
+        <!-- Text box for input message -->
+        <input type="text" class="form-control" onkeyup='{ edit }' id="input" placeholder='Enter text message' autocomplete="off"/>
+
+        <!-- Form submit button -->
+        <button  type="submit" id="btn-submit-text" disabled='{ !text }' class='btn btn-primary send-btn'>
+          <i class="fa fa-reply"> </i>
+        </button>
+
+      </form>
+    </div>
+
+  </nav>
+
+  <script>
+
+    this.text = '';
+    this.messages = opts.messages;
+
+    /*
+     * Store text message while typing
+     *
+     */
+
+    edit(e) {
+      this.text = e.target.value
+    }
+
+    /*
+     * Send new text message method
+     *
+     */
+
+    send(e) {
+
+      e.preventDefault();
+
+      if (this.text) {
+        var timestamp = Date.now();
+        // New text message
+        this.messages.push({
+          id: timestamp,
+          author: "Yo",
+          text: this.text,
+          timestamp: timestamp,
+          type: "put"
+        });
+        window.jsbot.send( e.target.message )
+        this.text = '';
+        $('#input').val('');
+        riot.update();
+
+        $('#message-list').scrollTop = $('#message-list').innerHeight * 2;
+      }
+    }
+
+    this.on('mount', function() {
+      $('message-list').scrollTop( $('#message-list').outerHeight() + 50 );
+    });
+
+  </script>
+
+</chat-box>

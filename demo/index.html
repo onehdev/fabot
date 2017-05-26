@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Forever Alone JS ChatBot</title>
+
+     <!-- Meta sets -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="Title" content="The Forever Alone JS ChatBot">
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <meta name="Description" content="ForaBotJs Project"/>
+    <meta name="Keywords" content="chatbot bot forabot forever alone javascript"/>
+    <meta name="Language" content="English"/>
+    <meta name="Robots" content="All"/>
+    <meta charset="utf-8"/>
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.0.5/es5-shim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script>html5.addElements('todo')</script>
+    <![endif]-->
+
+    <!-- RiotJs -->
+    <script src="js/riot+compiler.min.js"></script>
+
+    <!-- ForaBotJs -->
+    <script src="js/forabot.js"></script>
+
+    <!-- Custom javascript -->
+    <script src="js/main.js"></script>
+
+    <!-- Custom stylesheet -->
+    <link rel="stylesheet" type="text/css" href="css/main.css"/>
+
+  </head>
+  <body onload="javascript:runDemo();">
+
+    <!--                  -->
+    <!--   Message List   -->
+    <!--                  -->
+    <message-list></message-list>
+
+    <!--                  -->
+    <!--     Chat Box     -->
+    <!--                  -->
+    <chat-box></chat-box>
+
+    <script src="tag/message-list.tag.html" type="riot/tag"></script>
+    <script src="tag/chat-box.tag.html" type="riot/tag"></script>
+  </body>
+</html>
