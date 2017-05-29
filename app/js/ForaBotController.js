@@ -2,53 +2,128 @@
  * ForaBotJs - Main controller
  *
  * @constructor
- * @param {Function} externalReceiver - Function that will be called when ForaBot sends a message
  */
-function ForaBotController( externalReceiver, endCallback ) {
+function ForaBotController() {
   this.botStatus = 0;
   this.timeout = null;
   this.timeoutOverwrite = 0;
   this.currentStatus = null;
-  this.chatBox = null;
-  this.externalReceiver = externalReceiver;
+  this.listeners = {};
   this.currentBot = null;
-  this.endCallback = ( typeof(endCallback) == 'function' ) ? endCallback : null ;
+  console.info(this.getTime() + 'ForaBotController : Instance created');
 }
 
 /**
- * Loads given bot
- * @param  {ForaBot} bot
+ * Attach an event handler function for one event
+ * @param {String} eventType - Event type (can be multiple events separated by spaces)
+ * @param {Function} callbackFn - Callback
  */
-ForaBotController.prototype.load = function load( bot ) {
-  if (bot instanceof ForaBot) {
-    this.currentBot = bot;
-  } else {
-    throw new ForaBotError('ForaBotController.load : Cannot load received bot, must be a valid ForaBot instance')
+ForaBotController.prototype.on = function on(eventType, callbackFn) {
+  var self = this;
+  var __setListener = function(eventType, callbackFn) {
+    var listeners = self.listeners[ eventType ];
+    if ( typeof(listeners) != 'undefined' ){
+      if ( listeners.indexOf(callbackFn) == -1 ) {
+        listeners.push( callbackFn );
+      }
+    } else {
+      self.listeners[ eventType ] = [ callbackFn ];
+    }
   }
-};
-
-/**
- * Starts the chatbot
- */
-ForaBotController.prototype.start = function start() {
-  if (this.botStatus === 0) { // Off
-    this.currentStatus = 'init';
-    this.botStatus = 1; // Running
-    var __status = this.currentBot.status[ this.currentStatus ];
-    if ( __status ) {
-      //var __timeout = this.timeoutOverwrite || __status.timeout || Math.round(Math.random() * (1000 - 300)) + 300;
-      var __timeout = (__status) ? __status.getReadTime() : 1;
-      this.timeout = setTimeout(this.checkCurrent.bind(this), __timeout);
+  if ( typeof(eventType) == 'string' ) {
+    var __splited = eventType.split(' ');
+    if (__splited.length === 1) {
+      __setListener(eventType, callbackFn);
+    } else {
+      for (var i=0; i<__splited.length; i++) {
+        __setListener(__splited[i], callbackFn);
+      }
     }
   }
 };
 
 /**
- * Extends the defaults object with the properties of the overwrites object
- * @param {Object} defaults JS object with default values
- * @param {Object} overwrites JS object with new values
- * @return {Object} Returns de "defaults" object with the new properties
+ * Dettach an event handler function for one event type
+ * If no callbackFn specified will dettach all event's handlers
+ * @param {String} eventType - Event type (can be multiple events separated by spaces)
+ * @param {Function} callbackFn - Callback (optional)
  */
+ForaBotController.prototype.off = function off(eventType, callbackFn) {
+  var self = this;
+  var __clearListener = function(eventType, callbackFn) {
+    var listeners = self.listeners[ eventType ];
+  	if ( typeof(listeners) != 'undefined' ){
+      if (callbackFn) {
+        var index = listeners.indexOf(callbackFn);
+        if (index > -1) {
+          listeners.splice(index, 1);
+        }
+      } else {
+        delete self.listeners[ eventType ];
+      }
+    }
+  }
+  if ( typeof(eventType) == 'string' ) {
+    var __splited = eventType.split(' ');
+    if (__splited.length === 1) {
+      __clearListener(eventType, callbackFn);
+    } else {
+      for (var i=0; i<__splited.length; i++) {
+        __clearListener(__splited[i], callbackFn);
+      }
+    }
+  }
+};
+
+/**
+ * Execute all handlers attached to an eventType
+ * @param {String} eventType - Event type
+ * @param {Object} data - Event data
+ */
+ForaBotController.prototype.trigger = function trigger(eventType, data) {
+  var listeners = this.listeners[ eventType ];
+  if ( typeof(listeners) != 'undefined' ){
+    for (var i=0; i<listeners.length; i++) {
+      if ( typeof(listeners[i]) == "function" ) listeners[i]( data );
+    }
+  }
+};
+
+ForaBotController.prototype.load = function load( bot ) {
+  if (bot instanceof ForaBot) {
+    this.currentBot = bot;
+    console.info(this.getTime() + 'ForaBotController[load] : Bot successfully loaded');
+  } else {
+    throw new ForaBotError('ForaBotController[load] : Cannot load received bot, must be a valid ForaBot instance')
+  }
+};
+
+ForaBotController.prototype.start = function start() {
+  if (this.botStatus === 0 && this.currentBot.init) {
+    console.info(this.getTime() + 'ForaBotController[start] : Starting bot...');
+    if ( typeof(this.currentBot.init) == 'string' ) {
+      this.currentStatus = this.currentBot.init;
+    } else if ( this.currentBot.init.length ) {
+      var __random = Math.floor(Math.random() * (this.currentBot.init.length));
+      this.currentStatus = this.currentBot.init[__random];
+    } else {
+      throw new ForaBotError('ForaBotController[start] : Bot\'s initial status error, must be String or String[]!')
+    }
+    this.botStatus = 1; // Running
+    var __status = this.currentBot.status[ this.currentStatus ];
+    if ( __status ) {
+      var __timeout = 500;
+      console.info(this.getTime() + 'ForaBotController[start] : Bot is typing (' + __timeout + ' ms)');
+      this.trigger('typing', { timeout: __timeout } );
+      this.timeout = setTimeout(this.checkCurrent.bind(this), __timeout);
+    } else {
+      throw new ForaBotError('ForaBotController[start] : Bot\'s initial status error, "' + this.currentStatus + '" doesn\'t exist!');
+    }
+  } else {
+    console.info(this.getTime() + 'ForaBotController[start] : No initial status defined');
+  }
+};
+
 ForaBotController.prototype.extend = function extend(defaults, overwrites){
   for(var __key in overwrites) {
     if( overwrites.hasOwnProperty(__key) ) {
@@ -58,37 +133,34 @@ ForaBotController.prototype.extend = function extend(defaults, overwrites){
   return defaults;
 }
 
-/**
- * Checks the current bot status
- */
 ForaBotController.prototype.checkCurrent = function checkCurrent() {
   if (this.currentStatus === false ) {
-    if ( this.endCallback ) this.endCallback();
+    console.info(this.getTime() + 'ForaBotController[checkCurrent] : Bot says goodbye!');
+    this.trigger('finish');
   } else if (this.currentStatus) {
     var __status = this.currentBot.status[ this.currentStatus ];
-    if ( __status.type == 'put' ) {
-      this.botStatus = 1; // Running
-      var __message = this.extend( { id: Date.now() }, this.currentBot.status[ this.currentStatus ] );
-      this.externalReceiver( __message );
-    } else if ( __status.type == 'options' ) {
-      this.botStatus = 2; // Waiting
-      var __message = this.extend( { id: Date.now() }, this.currentBot.status[ this.currentStatus ] );
-      this.externalReceiver( __message );
-    }
+    var __message = this.extend( { id: Date.now() }, this.currentBot.status[ this.currentStatus ] );
+    this.botStatus = 1; // Running
+    console.info(this.getTime() + 'ForaBotController[checkCurrent] : Bot sends a message (' + this.currentStatus + ')');
+    this.trigger('message',  __message );
     this.next();
   }
 };
 
-/**
- * Stops the chatbot
- */
+ForaBotController.prototype.getTime = function getTime(){
+  var __date = new Date();
+  var __hours = (__date.getHours() < 10) ? '0' + __date.getHours() : __date.getHours();
+  var __minutes = (__date.getMinutes() < 10) ? '0' + __date.getMinutes() : __date.getMinutes();
+  var __seconds = (__date.getSeconds() < 10) ? '0' + __date.getSeconds() : __date.getSeconds();
+  return '[' + __hours + ':' + __minutes + ':' + __seconds + '] ';
+}
+
 ForaBotController.prototype.stop = function stop() {
   console.log('Stop')
   if (this.timeout) clearTimeout( this.timeout );
   this.timeout = null;
   this.status = 9;
   this.timeoutOverwrite = 0;
-  this.chatBox = riot.mount('chat-box', {messages: window.messages}  );
 };
 
 // ForaBotController.prototype.checkResponse = function checkResponse( response ) {
@@ -107,18 +179,13 @@ ForaBotController.prototype.stop = function stop() {
 //   return false;
 // }
 
-/**
- * Sends a response to the chatbot
- * @param {String} value
- * @return {Boolean} True if processed
- */
 ForaBotController.prototype.send = function send( value ) {
   if (this.botStatus == 2) { // Waiting
     this.timeoutOverwrite = 10;
     var __status = this.currentBot.status[ this.currentStatus ];
     if (__status.buttons.length > 0) {
       for (var i=0; i<__status.buttons.length; i++){
-        var __regexp = new RegExp(__status.buttons[i].text, 'gi');
+        var __regexp = new RegExp(__status.buttons[i].caption, 'gi');
         if ( __regexp.test(value) ) {
           this.timeoutOverwrite = 0;
           this.next( __status.buttons[i].next );
@@ -133,23 +200,22 @@ ForaBotController.prototype.send = function send( value ) {
   }
 };
 
-/**
- * Goes to the next chatbot status
- * @param {String} value (optional) the next status
- */
+ForaBotController.prototype.wait = function wait() {
+  this.status = 2; // Waiting
+}
+
 ForaBotController.prototype.next = function next( value ) {
-  if (this.chatBox) this.chatBox[0].unmount(true);
-  if ( typeof(value) != 'undefined' ) {
+  if ( typeof(value) != 'undefined' ) { // Received a new status
     var __status = this.currentBot.status[ this.currentStatus ];
-    //var __timeout = this.timeoutOverwrite || __status.timeout || Math.round(Math.random() * (1000 - 300)) + 300;
-    var __timeout = (__status) ? __status.getReadTime() : 50;
-    // Received a new status
+    var __timeout = (__status) ? __status.getReadTime() : 500;
+    console.info(this.getTime() + 'ForaBotController[next] : Bot is typing (' + __timeout + ' ms)');
+    this.trigger('typing', { timeout: __timeout } );
     this.currentStatus = value;
     this.timeout = setTimeout(this.checkCurrent.bind(this), __timeout);
   } else if (this.currentStatus) {
     var __status = this.currentBot.status[ this.currentStatus ];
     if ( typeof(__status.next) == 'undefined' || __status.next.length === undefined || __status.next.length === 0 ) {
-      //this.stop();
+      this.wait();
     } else {
       if ( __status.next.length === 1 ) {
         this.currentStatus = __status.next[0];
@@ -157,8 +223,9 @@ ForaBotController.prototype.next = function next( value ) {
         var __random = Math.floor(Math.random() * (__status.next.length));
         this.currentStatus = __status.next[__random];
       }
-      //var __timeout = this.timeoutOverwrite || __status.timeout || Math.round(Math.random() * (1000 - 300)) + 300;
-      var __timeout = (__status) ? __status.getReadTime() : 50;
+      var __timeout = (__status) ? __status.getReadTime() : 500;
+      console.info(this.getTime() + 'ForaBotController[next] : Bot is typing (' + __timeout + ' ms)');
+      this.trigger('typing', { timeout: __timeout } );
       this.timeout = setTimeout(this.checkCurrent.bind(this), __timeout);
     }
   }

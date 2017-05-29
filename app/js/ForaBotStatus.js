@@ -1,28 +1,24 @@
 /**
- * ForaBotJs - Represents a chatbot status
+ * ForaBotJs - Represents a bot status
  *
  * @constructor
  * @param {String} id - Status ID
  * @param {Object} data - Status data
  */
-function ForaBotStatus( id, data ) {
+function ForaBotStatus( id, data, super ) {
   var __idValidator = new RegExp('^[0-9a-zA-Z_-]+$','g');
   if ( typeof(id) === 'string' && __idValidator.test(id) ) {
     this.id = id;
+    this.super = super;
     if ( typeof(data) === 'object' ) {
-      this.type = data.type || null;
-      this.text = data.text || null;
-      this.next = data.next || [];
-      this.images = data.images || [];
-      this.buttons = data.buttons || [];
-      this.download = data.download || null;
-      this.code = data.code || null;
-      this.link = data.link || null;
+      for(var __key in data) {
+        this[__key] = data[__key];
+      }
     } else {
-      this.type = null;
+      this.super = super;
       this.text = null;
       this.next = [];
-      this.images = [];
+      this.images = null;
       this.buttons = [];
       this.download = null;
       this.code = null;
@@ -33,19 +29,25 @@ function ForaBotStatus( id, data ) {
   }
 }
 
-/**
- * Calculates the read time of a message
- * @return {Number} Time in ms
- */
-ForaBotStatus.prototype.getReadTime = function getReadTime( ) {
-  var __time = localStorage.getItem('ForaBotStatus-' + this.id) || '0';
-  __time = parseFloat( __time );
+ForaBotStatus.prototype.getReadTime = function getReadTime() {
+  var __time = 0;
+  if (this.super.autotypingTimeout) {
+    var __lastTime = localStorage.getItem('ForaBotStatus-' + this.super.id + '-' + this.id);
+    var __actualTime = Date.now();
+    if (__lastTime && (__actualTime - __lastTime < this.super.autotypingTimeout) ) {
+      __time = 50; // If message already loaded in last minute... no delay
+    }
+  }
   if (__time === 0) {
     if ( this.text ) {
       __time += (this.text.split(/[\s\.\,\;\:]/).length / 350) * 60000;
     }
-    if ( this.images ) {
-      __time += this.images.length * 50;
+    if ( this.image ) {
+      if ( typeof(this.image) == 'string' ) {
+        __time += 500;
+      } else {
+        __time += this.image.length * 500;
+      }
     }
     if ( this.download ) {
       __time += 50;
@@ -56,10 +58,12 @@ ForaBotStatus.prototype.getReadTime = function getReadTime( ) {
     if ( this.code ) {
       __time += (this.text.split(/[\s\.\,\;\:]/).length / 350 / 2) * 60000;
     }
-    if ( this.images ) {
+    if ( this.buttons ) {
       __time += (this.buttons.length / 350) * 60000;
     }
-    localStorage.setItem('ForaBotStatus-' + this.id, 10);
   }
-  return __time;
+  if (this.super.autotypingTimeout) {
+    localStorage.setItem('ForaBotStatus-' + this.super.id + '-' + this.id, Date.now());
+  }
+  return Math.floor(__time);
 };
