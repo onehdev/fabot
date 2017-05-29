@@ -1,3 +1,6 @@
+### MAP ### 
+*.js.map
+
 ### Node ###
 node_modules/
 npm-debug.log
