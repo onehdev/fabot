@@ -5,19 +5,17 @@
   <nav class="navbar navbar-dark bg-faded navbar-dark">
 
     <!-- Actions for message list -->
-    <div >
       <form id="f_send_message" onsubmit='{ send }'>
 
         <!-- Text box for input message -->
-        <input type="text" class="form-control" onkeyup='{ edit }' id="input" placeholder='Enter text message' autocomplete="off"/>
+        <input type="text" class="form-control" ref="text_box" onkeyup='{ edit }' id="input" placeholder='Enter text message' autocomplete="off"/>
 
         <!-- Form submit button -->
         <button  type="submit" id="btn-submit-text" disabled='{ !text }' class='btn btn-primary send-btn'>
-          <i class="fa fa-reply"> </i>
+          Send
         </button>
 
       </form>
-    </div>
 
   </nav>
 
@@ -52,19 +50,17 @@
           author: "Yo",
           text: this.text,
           timestamp: timestamp,
-          type: "put"
         });
-        window.jsbot.send( e.target.message )
+        window.jsbot.send( this.text )
         this.text = '';
-        $('#input').val('');
+        this.refs.text_box.value = '';
+        this.unmount(true);
         riot.update();
-
-        $('#message-list').scrollTop = $('#message-list').innerHeight * 2;
       }
     }
 
     this.on('mount', function() {
-      $('message-list').scrollTop( $('#message-list').outerHeight() + 50 );
+      this.refs.text_box.focus();
     });
 
   </script>

@@ -5,17 +5,23 @@
  * @param {String} id - Status ID
  * @param {Object} data - Status data
  */
-function ForaBotStatus( id, data, super ) {
+function ForaBotStatus( id, data, bot ) {
   var __idValidator = new RegExp('^[0-9a-zA-Z_-]+$','g');
   if ( typeof(id) === 'string' && __idValidator.test(id) ) {
     this.id = id;
-    this.super = super;
+    this.super = bot;
     if ( typeof(data) === 'object' ) {
       for(var __key in data) {
         this[__key] = data[__key];
       }
+      this.text = data.text || null;
+      this.next = data.next || [];
+      this.images = data.images || null;
+      this.buttons = data.buttons || [];
+      this.download = data.download || null;
+      this.code = data.code || null;
+      this.link = data.link || null;
     } else {
-      this.super = super;
       this.text = null;
       this.next = [];
       this.images = null;

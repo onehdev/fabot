@@ -10,6 +10,7 @@ function ForaBotController() {
   this.currentStatus = null;
   this.listeners = {};
   this.currentBot = null;
+  this.storage = null;
   console.info(this.getTime() + 'ForaBotController : Instance created');
 }
 
@@ -98,9 +99,14 @@ ForaBotController.prototype.load = function load( bot ) {
   }
 };
 
+ForaBotController.prototype.reset = function reset() {
+  this.storage = new ForaBotStorage();
+}
+
 ForaBotController.prototype.start = function start() {
   if (this.botStatus === 0 && this.currentBot.init) {
     console.info(this.getTime() + 'ForaBotController[start] : Starting bot...');
+    this.reset();
     if ( typeof(this.currentBot.init) == 'string' ) {
       this.currentStatus = this.currentBot.init;
     } else if ( this.currentBot.init.length ) {
@@ -140,12 +146,29 @@ ForaBotController.prototype.checkCurrent = function checkCurrent() {
   } else if (this.currentStatus) {
     var __status = this.currentBot.status[ this.currentStatus ];
     var __message = this.extend( { id: Date.now() }, this.currentBot.status[ this.currentStatus ] );
+    this.replaceStored(__message);
     this.botStatus = 1; // Running
     console.info(this.getTime() + 'ForaBotController[checkCurrent] : Bot sends a message (' + this.currentStatus + ')');
-    this.trigger('message',  __message );
+    this.trigger('output',  __message );
     this.next();
   }
 };
+
+ForaBotController.prototype.replaceStored = function replaceStored( message ){
+  if (typeof(message.text) == 'string') {
+    var __storageRegExp = new RegExp('~([a-zA-Z0-9_]+)~','g');
+    var __matches = message.text.match(__storageRegExp);
+    if (__matches) {
+      for (var i=0; i<__matches.length; i++){
+        var __match = __matches[i].replace(__storageRegExp, '$1');
+        var __storedValue = this.storage.getItem(__match);
+        if (__storedValue) {
+          message.text = message.text.replace(__matches[i], __storedValue, 'g');
+        }
+      }
+    }
+  }
+}
 
 ForaBotController.prototype.getTime = function getTime(){
   var __date = new Date();
@@ -156,7 +179,7 @@ ForaBotController.prototype.getTime = function getTime(){
 }
 
 ForaBotController.prototype.stop = function stop() {
-  console.log('Stop')
+  console.info(this.getTime() + 'ForaBotController[stop] : Stopping bot...');
   if (this.timeout) clearTimeout( this.timeout );
   this.timeout = null;
   this.status = 9;
@@ -180,28 +203,58 @@ ForaBotController.prototype.stop = function stop() {
 // }
 
 ForaBotController.prototype.send = function send( value ) {
+  console.info(this.getTime() + 'ForaBotController[send] : Bot receives a message (' + value + ')');
+  if (typeof(value) != 'string') {
+    throw new ForaBotError('ForaBotController[send] : Received message isn\'t a valid String');
+  }
   if (this.botStatus == 2) { // Waiting
+    console.info(this.getTime() + 'ForaBotController[send] : Processing message...');
     this.timeoutOverwrite = 10;
     var __status = this.currentBot.status[ this.currentStatus ];
+    //
+    // BUTTONS CHECK
+    //
     if (__status.buttons.length > 0) {
       for (var i=0; i<__status.buttons.length; i++){
-        var __regexp = new RegExp(__status.buttons[i].caption, 'gi');
-        if ( __regexp.test(value) ) {
+        var __regexp = new RegExp(value, 'gi');
+        if ( __regexp.test(__status.buttons[i].caption) ) {
           this.timeoutOverwrite = 0;
+          this.trigger('input', {
+            currentStatus: this.currentStatus,
+            nextStatus:  __status.buttons[i].next,
+            valueReceived: value
+          });
           this.next( __status.buttons[i].next );
           return true;
         }
       }
-    } else {
-      return false;
     }
+    //
+    // INPUT CHECK
+    //
+    if ( typeof(__status.input) == "object" ) {
+      // TODO: Validation (email, name, phone, ...)
+      this.trigger('input', {
+        currentStatus: this.currentStatus,
+        nextStatus: __status.input.next,
+        valueReceived: value
+      });
+      this.storage.setItem(__status.input.store, value);
+      this.next( __status.input.next );
+      return true;
+    }
+    console.info(this.getTime() + 'ForaBotController[send] : Received message doesn\'t match any path');
+    return false;
   } else {
+    console.info(this.getTime() + 'ForaBotController[send] : Bot isn\'t waiting for a message (status=' + this.botStatus + ')');
     return false;
   }
 };
 
 ForaBotController.prototype.wait = function wait() {
-  this.status = 2; // Waiting
+  this.botStatus = 2; // Waiting
+  console.info(this.getTime() + 'ForaBotController[wait] : Bot is waiting for a message (status=' + this.botStatus + ')');
+  this.trigger('waiting', this.currentBot.status[ this.currentStatus ] );
 }
 
 ForaBotController.prototype.next = function next( value ) {

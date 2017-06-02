@@ -1,10 +1,10 @@
-<message-list>
+<message-list ref="message_list_container">
 
   <!--                  -->
   <!--   Message List   -->
   <!--                  -->
 
-  <ul class='message-list' id='message-list'>
+  <ul class='message-list' id='message-list' ref="message_list">
     <li class='{ message: true, groupped: sameAuthor() }' id='{ id }' each={ message, index in opts.messages }>
       <!-- Avatar -->
       <div if='{ !message.author }' class='{ avatar: true, float-right: message.author, float-left: !message.author }'>
@@ -43,7 +43,7 @@
 
         <!-- Buttons -->
         <div class='message-button-container'>
-          <button type='button' onclick='{ buttonClick }' data-index='{ index }' class='btn btn-default message-button' each={ message.buttons }>{ text }</button>
+          <button type='button' onclick='{ buttonClick }' data-index='{ index }' class='btn btn-default message-button' each={ message.buttons }>{ caption }</button>
         </div>
 
         <!-- Timestamp -->
@@ -85,8 +85,7 @@
     this.on('mount', function() { } );
 
     this.on('updated', function() {
-      console.log(this.refs);
-      // $('message-list').scrollTop( $('#message-list').outerHeight() + 50 );
+      this.refs.message_list_container.scrollTop = this.refs.message_list.offsetHeight + 50;
     });
 
   </script>

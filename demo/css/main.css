@@ -22,6 +22,9 @@ html, body {
   background: linear-gradient(to top, rgba(230, 96, 0, 0.5) 0%,rgba(187, 34, 0, 0.5) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#E66000', endColorstr='#BB2200',GradientType=0 );
   background: linear-gradient(to top, rgba(230, 96, 0, 0.5) 0%, rgba(187, 34, 0, 0.5) 100% );
+  background-image: url(../img/background.jpg);
+  background-position: bottom center;
+  background-size: cover;
 }
 
 body {
@@ -44,9 +47,16 @@ label, p {
 }
 
 input {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
   display: inline !important;
   border-radius: 4px;
   height: 2.5rem;
+}
+
+form {
+  width: 100%;
 }
 
 hr {
@@ -99,10 +109,10 @@ ul.message-list {
   width: 40px;
   height: 40px;
 }
-.avatar.float-left {
+/*.avatar.float-left {
 	background-color: #373a3c;
 	border: 2px solid #373a3c;
-}
+}*/
 
 
 
