@@ -186,21 +186,6 @@ ForaBotController.prototype.stop = function stop() {
   this.timeoutOverwrite = 0;
 };
 
-// ForaBotController.prototype.checkResponse = function checkResponse( response ) {
-//   this.timeoutOverwrite = 10;
-//   var __status = this.bot[ this.currentStatus ];
-//   if (__status.buttons) {
-//     for (var i=0; i<__status.buttons.length; i++){
-//       var __regexp = new RegExp(__status.buttons[i].text, 'gi');
-//       if ( __regexp.test(response) ) {
-//         this.timeoutOverwrite = 0;
-//         this.next( __status.buttons[i].next );
-//         return true;
-//       }
-//     }
-//   }
-//   return false;
-// }
 
 ForaBotController.prototype.send = function send( value ) {
   console.info(this.getTime() + 'ForaBotController[send] : Bot receives a message (' + value + ')');
@@ -216,27 +201,37 @@ ForaBotController.prototype.send = function send( value ) {
     //
     var __keywordRegExp = new RegExp('^\#[0-9a-zA-Z_-]+');
     if ( __keywordRegExp.test(value) ) {
-      console.info(this.getTime() + 'ForaBotController[send] : Checking keyword '+ value);
+      console.info(this.getTime() + 'ForaBotController[send] : Checking keyword ('+ value +')');
       var __keyword = this.currentBot.keywords[ value.replace('#','') ];
       if ( __keyword instanceof ForaBotKeyword ) {
-        var __index = false;
+        console.info(this.getTime() + 'ForaBotController[send] : Found a valid keyword ('+ value + ')');
+        var __newCurrentStatus;
         // Checking if next status is defined
-        if (__keyword.next.length > 0) {
-          __index = ( __keyword.next.length === 1 ) ? 0 : Math.floor(Math.random() * (__status.next.length));
+        if ( typeof(__keyword.next) != 'undefined' ) {
+          if ( __keyword.next === false || typeof(__keyword.next) == 'string' ) {
+            // next keyword is a String
+            __newCurrentStatus = __keyword.next;
+          } else {
+            // next keyword is an Array
+            if ( __keyword.next.length === 1 ) {
+              __newCurrentStatus = __keyword.next[0];
+            } else {
+              var __random = Math.floor(Math.random() * (__keyword.next.length));
+              __newCurrentStatus = __keyword.next[__random];
+            }
+          }
         }
         // Checking if an event must be thrown
         if (__keyword.event) {
           this.trigger( 'custom.'+ __keyword.event, {
             currentStatus: this.currentStatus,
-            nextStatus: (__index === false) ? null : __keyword.next[__index],
+            nextStatus: __newCurrentStatus,
             valueReceived: value
           });
         }
         // Setup next status
-        if (__index !== false) {
-          this.next( __keyword.next[__index] );
-          return true;
-        }
+        this.next( __newCurrentStatus );
+        return true;
       }
     }
     //
@@ -295,19 +290,35 @@ ForaBotController.prototype.next = function next( value ) {
     this.timeout = setTimeout(this.checkCurrent.bind(this), __timeout);
   } else if (this.currentStatus) {
     var __status = this.currentBot.status[ this.currentStatus ];
-    if ( typeof(__status.next) == 'undefined' || __status.next.length === undefined || __status.next.length === 0 ) {
-      this.wait();
-    } else {
-      if ( __status.next.length === 1 ) {
-        this.currentStatus = __status.next[0];
+    if ( __status instanceof ForaBotStatus) {
+      if ( __status.next == null || typeof(__status.next) == 'undefined' ) {
+        this.wait();
+      } else if ( __status.next === false ) {
+        // next keyword is a False (END-OF-BOT)
+        this.currentStatus = __status.next;
+      } else if ( __status.next.length ) {
+        if ( typeof(__status.next) == 'string' ) {
+          // next keyword is a String
+          this.currentStatus = __status.next;
+        } else {
+          // next keyword is an Array
+          if ( __status.next.length === 1 ) {
+            this.currentStatus = __status.next[0];
+          } else {
+            var __random = Math.floor(Math.random() * (__status.next.length));
+            this.currentStatus = __status.next[__random];
+          }
+        }
+        // Typing delay
+        var __timeout = (__status) ? __status.getReadTime() : 500;
+        console.info(this.getTime() + 'ForaBotController[next] : Bot is typing (' + __timeout + ' ms)');
+        this.trigger('typing', { timeout: __timeout } );
+        this.timeout = setTimeout(this.checkCurrent.bind(this), __timeout);
       } else {
-        var __random = Math.floor(Math.random() * (__status.next.length));
-        this.currentStatus = __status.next[__random];
+        this.wait();
       }
-      var __timeout = (__status) ? __status.getReadTime() : 500;
-      console.info(this.getTime() + 'ForaBotController[next] : Bot is typing (' + __timeout + ' ms)');
-      this.trigger('typing', { timeout: __timeout } );
-      this.timeout = setTimeout(this.checkCurrent.bind(this), __timeout);
+    } else {
+      throw new ForaBotError('ForaBotController[next] : Incorrect status keyword (' + this.currentStatus + ')');
     }
   }
 };

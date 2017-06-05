@@ -16,7 +16,7 @@ function ForaBotStatus( id, data, bot ) {
         this[__key] = data[__key];
       }
       this.text = data.text || null;
-      this.next = data.next || [];
+      this.next = (data.next || data.next === false) ? data.next : null;
       this.images = data.images || null;
       this.buttons = data.buttons || [];
       this.download = data.download || null;
@@ -24,7 +24,7 @@ function ForaBotStatus( id, data, bot ) {
       this.link = data.link || null;
     } else {
       this.text = null;
-      this.next = [];
+      this.next = null;
       this.images = null;
       this.buttons = [];
       this.download = null;

@@ -31,12 +31,12 @@ function ForaBot( id, data ) {
   var __idValidator = new RegExp('^[0-9a-zA-Z_-]+$','g');
   if ( typeof(id) === 'string' && __idValidator.test(id) ) {
     this.id = id;
-    this.init = null;
+    this.init = undefined;
     this.status = {};
     this.keywords = {};
     if ( typeof(data) === 'object' ) {
-      this.name = data.name || null;
-      this.init = data.init || null;
+      this.name = data.name || undefined;
+      this.init = data.init || undefined;
       this.autotypingTimeout = (typeof(data.autotypingTimeout) == 'number') ? data.autotypingTimeout : 0;
       if ( typeof(data.status) === 'object' ) {
         for ( var __key in data.status ) {
@@ -49,8 +49,8 @@ function ForaBot( id, data ) {
         }
       }
     } else {
-      this.name = null;
-      this.init = null;
+      this.name = undefined;
+      this.init = undefined;
       this.autotypingTimeout = 0;
       this.status = {};
     }

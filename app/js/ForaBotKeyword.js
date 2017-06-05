@@ -16,10 +16,10 @@ function ForaBotKeyword( id, data, bot ) {
         this[__key] = data[__key];
       }
       this.event = data.event || null;
-      this.next = data.next || [];
+      this.next = (data.next || data.next === false) ? data.next : null;
     } else {
       this.event = null;
-      this.next = [];
+      this.next = null;
     }
   } else {
     throw new ForaBotError('ForaBotKeyword : Keyword ID must be a valid string')
