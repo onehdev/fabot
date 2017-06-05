@@ -33,6 +33,7 @@ function ForaBot( id, data ) {
     this.id = id;
     this.init = null;
     this.status = {};
+    this.keywords = {};
     if ( typeof(data) === 'object' ) {
       this.name = data.name || null;
       this.init = data.init || null;
@@ -40,6 +41,11 @@ function ForaBot( id, data ) {
       if ( typeof(data.status) === 'object' ) {
         for ( var __key in data.status ) {
           this.status[__key] = new ForaBotStatus( __key, data.status[__key], this);
+        }
+      }
+      if ( typeof(data.keywords) === 'object' ) {
+        for ( var __key in data.keywords ) {
+          this.keywords[__key] = new ForaBotKeyword( __key, data.keywords[__key], this);
         }
       }
     } else {
@@ -267,6 +273,34 @@ ForaBotController.prototype.send = function send( value ) {
     this.timeoutOverwrite = 10;
     var __status = this.currentBot.status[ this.currentStatus ];
     //
+    // KEYWORDS CHECK
+    //
+    var __keywordRegExp = new RegExp('^\#[0-9a-zA-Z_-]+');
+    if ( __keywordRegExp.test(value) ) {
+      console.info(this.getTime() + 'ForaBotController[send] : Checking keyword '+ value);
+      var __keyword = this.currentBot.keywords[ value.replace('#','') ];
+      if ( __keyword instanceof ForaBotKeyword ) {
+        var __index = false;
+        // Checking if next status is defined
+        if (__keyword.next.length > 0) {
+          __index = ( __keyword.next.length === 1 ) ? 0 : Math.floor(Math.random() * (__status.next.length));
+        }
+        // Checking if an event must be thrown
+        if (__keyword.event) {
+          this.trigger( 'custom.'+ __keyword.event, {
+            currentStatus: this.currentStatus,
+            nextStatus: (__index === false) ? null : __keyword.next[__index],
+            valueReceived: value
+          });
+        }
+        // Setup next status
+        if (__index !== false) {
+          this.next( __keyword.next[__index] );
+          return true;
+        }
+      }
+    }
+    //
     // BUTTONS CHECK
     //
     if (__status.buttons.length > 0) {
@@ -354,11 +388,40 @@ ForaBotError.prototype = new Error();
 ForaBotError.prototype.constructor = ForaBotError;
 
 /**
+ * ForaBotJs - Represents a bot keyword
+ *
+ * @constructor
+ * @param {String} id - Status ID
+ * @param {Object} data - Status data
+ * @param {ForaBot} bot - Super reference
+ */
+function ForaBotKeyword( id, data, bot ) {
+  var __idValidator = new RegExp('^[0-9a-zA-Z_-]+$','g');
+  if ( typeof(id) === 'string' && __idValidator.test(id) ) {
+    this.id = id;
+    this.super = bot;
+    if ( typeof(data) === 'object' ) {
+      for(var __key in data) {
+        this[__key] = data[__key];
+      }
+      this.event = data.event || null;
+      this.next = data.next || [];
+    } else {
+      this.event = null;
+      this.next = [];
+    }
+  } else {
+    throw new ForaBotError('ForaBotKeyword : Keyword ID must be a valid string')
+  }
+}
+
+/**
  * ForaBotJs - Represents a bot status
  *
  * @constructor
  * @param {String} id - Status ID
  * @param {Object} data - Status data
+ * @param {ForaBot} bot - Super reference
  */
 function ForaBotStatus( id, data, bot ) {
   var __idValidator = new RegExp('^[0-9a-zA-Z_-]+$','g');

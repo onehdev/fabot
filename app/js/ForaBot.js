@@ -33,6 +33,7 @@ function ForaBot( id, data ) {
     this.id = id;
     this.init = null;
     this.status = {};
+    this.keywords = {};
     if ( typeof(data) === 'object' ) {
       this.name = data.name || null;
       this.init = data.init || null;
@@ -40,6 +41,11 @@ function ForaBot( id, data ) {
       if ( typeof(data.status) === 'object' ) {
         for ( var __key in data.status ) {
           this.status[__key] = new ForaBotStatus( __key, data.status[__key], this);
+        }
+      }
+      if ( typeof(data.keywords) === 'object' ) {
+        for ( var __key in data.keywords ) {
+          this.keywords[__key] = new ForaBotKeyword( __key, data.keywords[__key], this);
         }
       }
     } else {

@@ -212,6 +212,34 @@ ForaBotController.prototype.send = function send( value ) {
     this.timeoutOverwrite = 10;
     var __status = this.currentBot.status[ this.currentStatus ];
     //
+    // KEYWORDS CHECK
+    //
+    var __keywordRegExp = new RegExp('^\#[0-9a-zA-Z_-]+');
+    if ( __keywordRegExp.test(value) ) {
+      console.info(this.getTime() + 'ForaBotController[send] : Checking keyword '+ value);
+      var __keyword = this.currentBot.keywords[ value.replace('#','') ];
+      if ( __keyword instanceof ForaBotKeyword ) {
+        var __index = false;
+        // Checking if next status is defined
+        if (__keyword.next.length > 0) {
+          __index = ( __keyword.next.length === 1 ) ? 0 : Math.floor(Math.random() * (__status.next.length));
+        }
+        // Checking if an event must be thrown
+        if (__keyword.event) {
+          this.trigger( 'custom.'+ __keyword.event, {
+            currentStatus: this.currentStatus,
+            nextStatus: (__index === false) ? null : __keyword.next[__index],
+            valueReceived: value
+          });
+        }
+        // Setup next status
+        if (__index !== false) {
+          this.next( __keyword.next[__index] );
+          return true;
+        }
+      }
+    }
+    //
     // BUTTONS CHECK
     //
     if (__status.buttons.length > 0) {

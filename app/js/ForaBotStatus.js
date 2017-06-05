@@ -4,6 +4,7 @@
  * @constructor
  * @param {String} id - Status ID
  * @param {Object} data - Status data
+ * @param {ForaBot} bot - Super reference
  */
 function ForaBotStatus( id, data, bot ) {
   var __idValidator = new RegExp('^[0-9a-zA-Z_-]+$','g');

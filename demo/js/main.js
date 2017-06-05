@@ -23,6 +23,15 @@ var bot = new ForaBot('0', {
   name: 'Example',
   init: 'welcome',
   autotypingTimeout: 30000,
+  keywords: {
+    "exit": {
+      event: "exit",
+      next: [false],
+    },
+    "menu": {
+      next: ["welcome_menu"],
+    }
+  },
   status: {
     //
     // Welcome
