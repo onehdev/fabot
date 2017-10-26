@@ -5,6 +5,7 @@ const $ = require('gulp-load-plugins')({
   scope: ['devDependencies']
 });
 const clientName = require('./package.json').client;
+const version = require('./package.json').version;
 let client;
 
 /****** SCRIPTS ******/
@@ -13,7 +14,7 @@ gulp.task('scripts', () =>
     `${path.app.js}**/*.js`
   ])
     .pipe($.sourcemaps.init())
-    .pipe($.concat('forabot.js'))
+    .pipe($.concat('forabot-' + version + '.js'))
 //    .pipe($.uglify())
     .pipe($.sourcemaps.write('./'))
     .pipe(gulp.dest(`${path.dist.js}`))

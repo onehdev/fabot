@@ -32,11 +32,14 @@ function ForaBot( id, data ) {
   if ( typeof(id) === 'string' && __idValidator.test(id) ) {
     this.id = id;
     this.init = undefined;
+    this.name = undefined;
+    this.autotypingTimeout = 0;
     this.status = {};
     this.keywords = {};
+    this.storage = {};
     if ( typeof(data) === 'object' ) {
-      this.name = data.name || undefined;
-      this.init = data.init || undefined;
+      this.name = data.name || undefined;
+      this.init = data.init || undefined;
       this.autotypingTimeout = (typeof(data.autotypingTimeout) == 'number') ? data.autotypingTimeout : 0;
       if ( typeof(data.status) === 'object' ) {
         for ( var __key in data.status ) {
@@ -48,13 +51,43 @@ function ForaBot( id, data ) {
           this.keywords[__key] = new ForaBotKeyword( __key, data.keywords[__key], this);
         }
       }
-    } else {
-      this.name = undefined;
-      this.init = undefined;
-      this.autotypingTimeout = 0;
-      this.status = {};
+      if ( typeof(data.storage) === 'object' ) {
+        for ( var __key in data.storage ) {
+          this.storage[__key] = data.storage[__key];
+        }
+      }
     }
   } else {
     throw new ForaBotError('ForaBot : Bot ID must be a valid string')
   }
+}
+
+ForaBot.prototype.getData = function getData() {
+  var __data = {
+    id: this.id,
+    init: this.init,
+    name: this.name,
+    autotypingTimeout: this.autotypingTimeout,
+    status: {},
+    keywords: {},
+    storage: {}
+  };
+  for (var __key in __data){
+    if (__data[__key] == null || __data[__key] == undefined) {
+      delete __data[__key];
+    }
+  }
+  // STATUS LOAD
+  for ( var __key in this.status ) {
+    __data.status[__key] = this.status[__key].getData();
+  }
+  // KEYWORDS LOAD
+  for ( var __key in this.keywords ) {
+    __data.keywords[__key] = this.keywords[__key].getData();
+  }
+  // STORAGE LOAD
+  for ( var __key in this.storage ) {
+    __data.storage[__key] = this.storage[__key];
+  }
+  return __data;
 }

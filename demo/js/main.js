@@ -17,28 +17,19 @@ function botFinished() {
 
 function botIsWaiting(status) {
   riot.mount('chat-box', {messages: window.messages} );
+  document.querySelector('message-list').scrollTop = document.getElementById('message-list').offsetHeight + 50;
 }
 
 var bot = new ForaBot('0', {
-  name: 'Example',
-  init: 'welcome',
-  autotypingTimeout: 30000,
-  keywords: {
-    "exit": {
-      event: "exit",
-      next: false,
-    },
-    "menu": {
-      next: "welcome_menu",
-    }
-  },
+  "name": "Bot Builder - Content",
+  "init": ["welcome"],
   status: {
     //
     // Welcome
     //
     "welcome": {
       text: "Hey! ForaBot is here 👋🏻",
-      next: "wellcome_get_name",
+      next: ["wellcome_get_name"],
     },
     "wellcome_get_name": {
       text: "What\'s your name?",
@@ -48,12 +39,12 @@ var bot = new ForaBot('0', {
       },
     },
     "welcome_hello": {
-      text: "Hello ~name~, what can I do for you?",
-      next: "welcome_menu",
+      text: "Hello $name, what can I do for you?",
+      next: ["welcome_menu"],
     },
     "welcome_back": {
       text: "Can I help you with something else ~name~?",
-      next: "welcome_menu",
+      next: ["welcome_menu"],
     },
     "welcome_menu": {
       type: "options",
@@ -72,24 +63,24 @@ var bot = new ForaBot('0', {
     //
     "about": {
       text: "Not much to say...",
-      next: "about_2",
+      next: ["about_2"],
     },
     "about_2": {
       text: "Check the project page on GitHub",
       link: { href: "https://github.com/onehdev/forabot", text: "https://github.com/onehdev/forabot", title: "Fork me on GitHub" },
-      next: "welcome_back",
+      next: ["welcome_back"],
     },
     //
     // Requirements
     //
     "requirements": {
       text: "You only need a Web browser and a text editor to create the chatbot",
-      next: "requirements_end",
+      next: ["requirements_end"],
     },
     "requirements_end": {
       text: "If need more info check this link:",
       link: { href: "https://github.com/onehdev/forabot", text: "ForaBot Wiki", title: "ForaBot Wiki section" },
-      next:  "welcome_back" ,
+      next: [ "welcome_back" ],
     },
 
     //
@@ -98,28 +89,28 @@ var bot = new ForaBot('0', {
     "download": {
       text: "Ok, here you have the JS file:",
       link: { href: "js/forabot.js", text: "forabot.js", title: "ForaBotJs" },
-      next:  "welcome_back" ,
+      next: [ "welcome_back" ],
     },
     //
     // Download
     //
     "features": {
       text: "Well, let's see...",
-      next:  "features_text" ,
+      next: [ "features_text" ],
     },
     "features_text": {
       text: "You can use ForaBot to send text messages like this one!",
-      next:  "features_image_1" ,
+      next: [ "features_image_1" ],
     },
     "features_image_1": {
       text: "Also ForaBot can send images like this...",
       images: ["img/pipboy.png"],
-      next:  "features_image_2" ,
+      next: [ "features_image_2" ],
     },
     "features_image_2": {
       text: "Or this one...",
       images: ["img/partyparrot.gif"],
-      next:  "welcome_back" ,
+      next: [ "welcome_back" ],
     },
   }
 });

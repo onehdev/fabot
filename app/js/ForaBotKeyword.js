@@ -15,8 +15,8 @@ function ForaBotKeyword( id, data, bot ) {
       for(var __key in data) {
         this[__key] = data[__key];
       }
-      this.event = data.event || null;
-      this.next = (data.next || data.next === false) ? data.next : null;
+      this.event = data.event || null;
+      this.next = (data.next || data.next === false) ? data.next : null;
     } else {
       this.event = null;
       this.next = null;
@@ -24,4 +24,17 @@ function ForaBotKeyword( id, data, bot ) {
   } else {
     throw new ForaBotError('ForaBotKeyword : Keyword ID must be a valid string')
   }
+}
+
+ForaBotKeyword.prototype.getData = function getData() {
+  var __data = {
+    event: this.event,
+    next: this.next,
+  };
+  for (var __key in __data){
+    if (__data[__key] == null || __data[__key] == undefined) {
+      delete __data[__key];
+    }
+  }
+  return __data;
 }

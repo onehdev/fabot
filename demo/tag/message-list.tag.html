@@ -43,7 +43,7 @@
 
         <!-- Buttons -->
         <div class='message-button-container'>
-          <button type='button' onclick='{ buttonClick }' data-index='{ index }' class='btn btn-default message-button' each={ message.buttons }>{ caption }</button>
+          <button type='button' data-value='{ value }' onclick='{ buttonClick }' data-index='{ index }' class='btn btn-default message-button' each={ message.buttons }>{ caption }</button>
         </div>
 
         <!-- Timestamp -->
@@ -63,11 +63,11 @@
       this.messages.push({
         id: timestamp,
         author: "Yo",
-        text: e.target.innerText,
+        text: e.target.getAttribute('data-value') || e.target.innerText,
         timestamp: timestamp,
         type: "put"
       });
-      window.jsbot.send( e.target.innerText )
+      window.jsbot.send( e.target.getAttribute('data-value') || e.target.innerText )
       this.messages.splice( e.target.getAttribute('data-index'), 1 );
       riot.update();
     }

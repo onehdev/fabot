@@ -11,29 +11,44 @@ function ForaBotStatus( id, data, bot ) {
   if ( typeof(id) === 'string' && __idValidator.test(id) ) {
     this.id = id;
     this.super = bot;
+    this.text = undefined;
+    this.next = undefined;
+    this.images = undefined;
+    this.buttons = undefined;
+    this.download = undefined;
+    this.code = undefined;
+    this.link = undefined;
+    this.input = undefined;
+    this.checklist = undefined;
     if ( typeof(data) === 'object' ) {
       for(var __key in data) {
         this[__key] = data[__key];
       }
-      this.text = data.text || null;
-      this.next = (data.next || data.next === false) ? data.next : null;
-      this.images = data.images || null;
-      this.buttons = data.buttons || [];
-      this.download = data.download || null;
-      this.code = data.code || null;
-      this.link = data.link || null;
-    } else {
-      this.text = null;
-      this.next = null;
-      this.images = null;
-      this.buttons = [];
-      this.download = null;
-      this.code = null;
-      this.link = null;
+      this.next = (data.next || data.next === false) ? data.next : null;
     }
   } else {
     throw new ForaBotError('ForaBotStatus : Status ID must be a valid string')
   }
+}
+
+ForaBotStatus.prototype.getData = function getData() {
+  var __data = {
+    text: this.text,
+    next: this.next,
+    input: this.input,
+    checklist: this.checklist,
+    images: this.images,
+    buttons: this.buttons,
+    download: this.download,
+    code: this.code,
+    link: this.link
+  };
+  for (var __key in __data){
+    if (__data[__key] == null || __data[__key] == undefined) {
+      delete __data[__key];
+    }
+  }
+  return __data;
 }
 
 ForaBotStatus.prototype.getReadTime = function getReadTime() {
